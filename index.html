@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Tik Tac Toe - Abhi Gaming</title>
+  <style>
+    body {
+      background: linear-gradient(to right, #000000, #1a1a1a);
+      font-family: 'Courier New', monospace;
+      text-align: center;
+      padding: 20px;
+      color: #0ff;
+    }
+
+    h1 {
+      font-size: 2em;
+      margin-bottom: 10px;
+      color: #0ff;
+      text-shadow: 0 0 10px #0ff;
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(3, 100px);
+      grid-gap: 10px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .cell {
+      width: 100px;
+      height: 100px;
+      font-size: 2.5em;
+      background: #111;
+      border: 2px solid #0ff;
+      color: #0ff;
+      text-shadow: 0 0 8px #0ff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s;
+    }
+
+    .cell:hover {
+      transform: scale(1.05);
+      background-color: #222;
+    }
+
+    #status {
+      margin-top: 20px;
+      font-size: 1.2em;
+      color: #0ff;
+      text-shadow: 0 0 5px #0ff;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 1em;
+      background: #0ff;
+      color: black;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      box-shadow: 0 0 10px #0ff;
+    }
+
+    button:hover {
+      background: #00e6e6;
+    }
+  </style>
+</head>
+<body>
+  <h1>Abhi Gaming 🎮</h1>
+  <div class="board" id="board"></div>
+  <div id="status">Shuru karo!</div>
+  <button onclick="startGame()">New Game 🔁</button>
+
+  <audio id="clickSound" src="https://www.soundjay.com/buttons/sounds/button-16.mp3"></audio>
+  <audio id="winSound" src="https://www.soundjay.com/human/sounds/applause-8.mp3"></audio>
+
+  <script>
+    const boardEl = document.getElementById('board');
+    const statusEl = document.getElementById('status');
+    const clickSound = document.getElementById('clickSound');
+    const winSound = document.getElementById('winSound');
+
+    let board, currentPlayer, gameOver;
+
+    function startGame() {
+      board = ["", "", "", "", "", "", "", "", ""];
+      currentPlayer = "X";
+      gameOver = false;
+      drawBoard();
+      statusEl.textContent = "Your Turn (X)";
+    }
+
+    function drawBoard() {
+      boardEl.innerHTML = "";
+      board.forEach((cell, index) => {
+        const cellEl = document.createElement('div');
+        cellEl.classList.add('cell');
+        cellEl.textContent = cell;
+        cellEl.style.color = cell === "X" ? "#00ffff" : cell === "O" ? "#ff00ff" : "#0ff";
+        cellEl.addEventListener('click', () => handleMove(index));
+        boardEl.appendChild(cellEl);
+      });
+    }
+
+    function handleMove(index) {
+      if (board[index] || gameOver) return;
+      board[index] = currentPlayer;
+      clickSound.play();
+      drawBoard();
+      if (checkWin(currentPlayer)) {
+        gameOver = true;
+        winSound.play();
+        if (currentPlayer === "X") {
+          alert("🎉 Congratulations! You Win!");
+          statusEl.textContent = "You Win! 🏆";
+        } else {
+          alert("😈 Computer Won!");
+          statusEl.textContent = "Computer Wins! 🤖";
+        }
+        return;
+      }
+      if (board.every(cell => cell)) {
+        statusEl.textContent = "It's a Draw 🤝";
+        return;
+      }
+      currentPlayer = currentPlayer === "X" ? "O" : "X";
+      if (currentPlayer === "O") {
+        setTimeout(computerMove, 500);
+      } else {
+        statusEl.textContent = "Your Turn (X)";
+      }
+    }
+
+    function computerMove() {
+      let emptyIndices = board.map((v, i) => v === "" ? i : null).filter(v => v !== null);
+      let move = emptyIndices[Math.floor(Math.random() * emptyIndices.length)];
+      handleMove(move);
+    }
+
+    function checkWin(player) {
+      const winPatterns = [
+        [0,1,2], [3,4,5], [6,7,8],
+        [0,3,6], [1,4,7], [2,5,8],
+        [0,4,8], [2,4,6]
+      ];
+      return winPatterns.some(pattern =>
+        pattern.every(i => board[i] === player)
+      );
+    }
+
+    startGame();
+  </script>
+</body>
+</html>
